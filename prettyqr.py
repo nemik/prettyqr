@@ -1,6 +1,8 @@
+#!/usr/bin/env python
+
 import sys
 from optparse import OptionParser
-from qrencode import encode_scaled, QR_ECLEVEL_H
+from qrencode import encode_scaled, QR_ECLEVEL_H, QR_ECLEVEL_L, QR_ECLEVEL_M, QR_ECLEVEL_Q
 from prettyqr.blobgrid import BlobGrid
 from prettyqr.logos import clear_logo_space, get_svg_logo
 from prettyqr.svg import svg_start, svg_end
@@ -17,6 +19,8 @@ def main():
         help="load rasterized logo (png) from FILE", metavar="FILE")
     parser.add_option("-c", "--color", dest="colour", default="#a54024",
         help="use COLOR as secondary color")
+    parser.add_option("-e", "--error", dest="error", default="H",
+        help="use ERROR level (L, M, Q or H)")
     parser.add_option("-m", "--min-size", type="int", dest="min_size",
         default="40", help="pad output to minimum size for final QR image")
 
@@ -25,8 +29,16 @@ def main():
     if not args:
         parser.print_help()
         sys.exit()
+    
+    error = QR_ECLEVEL_H
+    if options.error.lower() == "l":
+      error = QR_ECLEVEL_L
+    if options.error.lower() == "m":
+      error = QR_ECLEVEL_M
+    if options.error.lower() == "q":
+      error = QR_ECLEVEL_Q
 
-    qr = encode_scaled(args[0], options.min_size, level=QR_ECLEVEL_H)
+    qr = encode_scaled(args[0], options.min_size, level=error)
     image = qr[-1]
     array = image.load()
     # assume squares
